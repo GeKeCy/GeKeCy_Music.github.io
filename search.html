@@ -33,6 +33,17 @@
         .text-info { color: #333 !important; }
         .font-weight-bold { font-weight: 545 !important; font-size: 15px; line-height: 1; }
         .loading { text-align: center; padding: 40px; color: #999; }
+        .original-tag {
+            display: inline-block;
+            background-color: #31c27c;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 8px;
+            font-weight: 500;
+            vertical-align: middle;
+        }
         footer {
             flex-shrink: 0; background-color: #343a40; color: #999;
             padding: 40px 0 20px 0; margin-top: auto;
@@ -177,15 +188,23 @@
                 var sorted = sortSongs(data, keyword);
                 $('#result-count').text(sorted.length);
                 var html = '';
+                var originalSet = {};
+                sorted.forEach(function(s) {
+                    if (isOriginalVersion(s.title || '', keyword)) {
+                        originalSet[s.title + '|' + s.author] = true;
+                    }
+                });
                 sorted.forEach(function(song, i) {
                     var urlMatch = song.url && song.url.match(/id=(\d+)/);
                     var songId = urlMatch ? urlMatch[1] : '';
                     var title = song.title || '';
                     var artist = song.author || '';
+                    var isOrig = originalSet[title + '|' + artist];
+                    var tagHtml = isOrig ? '<span class="original-tag">原唱</span>' : '';
                     if (songId) {
                         html += '<tr>' +
                             '<td style="font-size: 17px;color: grey;font-weight: 700;width: 56px;text-align: center;">' + (i + 1) + '</td>' +
-                            '<td><a href="play.html?id=' + encodeURIComponent(songId) + '" class="text-info font-weight-bold">' + escapeHtml(title) + '</a></td>' +
+                            '<td>' + tagHtml + '<a href="play.html?id=' + encodeURIComponent(songId) + '" class="text-info font-weight-bold">' + escapeHtml(title) + '</a></td>' +
                             '<td style="color: #666;font-size: 15px;">' + escapeHtml(artist) + '</td>' +
                             '</tr>';
                     }
