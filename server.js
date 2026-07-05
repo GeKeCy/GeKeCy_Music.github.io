@@ -129,7 +129,7 @@ function generateCommonHead(title) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>${escapeHtml(title)}</title>
-    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/img/logo.png" type="image/png">
     <link href="/static/css/common.css" rel="stylesheet">
     <link href="//lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <link href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
@@ -172,22 +172,12 @@ function generateNavbar(keyword) {
     <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="/">
         <img src="/static/img/logo.png" width="38" height="38" class="d-inline-block align-middle" alt="Logo" style="margin: 5px;margin-bottom: 10px;">
         <h1 class="navbar-h1">歌曲海</h1>
-        <span class="text-muted" style="font-size: smaller">Gequhai.com</span>
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">排行</a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown" style="border-top: 0.15rem solid #31c27c;">
-                    <a class="dropdown-item" href="javascript:void(0)">热门榜</a>
-                    <a class="dropdown-item" href="javascript:void(0)">歌手榜</a>
-                    <a class="dropdown-item" href="javascript:void(0)">飙升榜</a>
-                    <a class="dropdown-item" href="javascript:void(0)">新歌榜</a>
-                </div>
-            </li>
             <li class="nav-item">
                 <a class="nav-link" href="/"><i class="fa fa-search"></i> 搜索</a>
             </li>
