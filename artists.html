@@ -159,19 +159,31 @@
             $('#artist-list').html(html);
         }
 
-        // 先获取排行榜100条（有热度分数），再获取额外100条补充，合并200条
+        // 获取排行榜100条（有热度分数）+ offset=100/200补充，去重后取前200条
         $.when(
             $.getJSON('https://music163.xuanmou.com.cn/toplist/artist'),
-            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=100')
-        ).then(function(res1, res2) {
+            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=100'),
+            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=200')
+        ).then(function(res1, res2, res3) {
             try {
                 var ranked = (res1[0] && res1[0].list && res1[0].list.artists) ? res1[0].list.artists : [];
-                var extra = (res2[0] && res2[0].artists) ? res2[0].artists : [];
-                // 去重：排除排行榜已有的歌手
-                var rankedNames = {};
-                ranked.forEach(function(a) { rankedNames[a.name] = true; });
-                var filtered = extra.filter(function(a) { return !rankedNames[a.name]; });
-                var all = ranked.concat(filtered);
+                var extra1 = (res2[0] && res2[0].artists) ? res2[0].artists : [];
+                var extra2 = (res3[0] && res3[0].artists) ? res3[0].artists : [];
+                var seen = {};
+                var all = [];
+                ranked.forEach(function(a) {
+                    if (!seen[a.name]) {
+                        seen[a.name] = true;
+                        all.push(a);
+                    }
+                });
+                extra1.concat(extra2).forEach(function(a) {
+                    if (!seen[a.name]) {
+                        seen[a.name] = true;
+                        all.push(a);
+                    }
+                });
+                all = all.slice(0, 200);
                 if (all.length > 0) {
                     renderArtists(all);
                 } else {
