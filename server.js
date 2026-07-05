@@ -35,9 +35,8 @@ proxy.on('proxyReq', (proxyReq, req) => {
   console.log('[Proxy]', req.method, req.originalUrl, '->', API_TARGET + req.originalUrl.replace(/^\/api/, ''));
 });
 
-// Serve static files from /workspace/gequhai/
-const STATIC_DIR = '/workspace/gequhai';
-app.get('/debug', (req, res) => res.json({ dir: STATIC_DIR, __dirname: __dirname }));
+// Serve static files from current directory
+const STATIC_DIR = __dirname;
 app.use(express.static(STATIC_DIR, {
   index: 'index.html',
   setHeaders: (res, filePath) => {
