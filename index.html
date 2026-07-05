@@ -54,6 +54,20 @@
         .hot-tag.top3 .rank { background: #ffa940; color: #fff; }
         .hot-tag .rank { background: #f0f0f0; color: #999; }
 
+        .artist-tag {
+            display: inline-flex; align-items: center; padding: 4px 10px; margin: 4px;
+            border-radius: 20px; font-size: 14px; cursor: pointer;
+            transition: all 0.2s; border: 1px solid #e8e8e8; color: #555;
+        }
+        .artist-tag:hover { background-color: #31c27c; color: #fff; border-color: #31c27c; }
+        .artist-tag img { width: 24px; height: 24px; border-radius: 50%; margin-right: 6px; object-fit: cover; }
+        .artist-tag .rank { display: inline-block; width: 20px; height: 20px; line-height: 20px;
+            text-align: center; border-radius: 50%; font-size: 12px; margin-right: 6px; font-weight: bold; }
+        .artist-tag.top1 .rank { background: #ff4d4f; color: #fff; }
+        .artist-tag.top2 .rank { background: #ff7a45; color: #fff; }
+        .artist-tag.top3 .rank { background: #ffa940; color: #fff; }
+        .artist-tag .rank { background: #f0f0f0; color: #999; }
+
         footer {
             flex-shrink: 0; background-color: #343a40; color: #999;
             padding: 40px 0 20px 0; margin-top: auto;
@@ -93,6 +107,19 @@
                 <small class="text-muted" style="font-size:12px">实时更新</small>
             </h6>
             <div id="hot-list" style="margin-top: 10px;">
+                <span class="text-muted">加载中...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hot Artists -->
+    <div class="card shadow-sm mb-1" id="hot-artists-card">
+        <div class="card-body">
+            <h6 class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fa fa-user" style="color:#31c27c"></i> 热门歌手 <small class="text-muted" style="font-size:12px">实时更新</small></span>
+                <a href="artists.html" style="font-size:13px;color:#31c27c;">更多歌手 <i class="fa fa-angle-right"></i></a>
+            </h6>
+            <div id="artist-list" style="margin-top: 10px;">
                 <span class="text-muted">加载中...</span>
             </div>
         </div>
@@ -174,7 +201,7 @@
                         return { rank: i + 1, keyword: h.first };
                     });
                     if (hots.length > 0) {
-                        renderHots(hots);
+                        renderHots(hots.slice(0, 20));
                     } else {
                         renderHots(FALLBACK);
                     }
@@ -186,6 +213,50 @@
             }
         }).fail(function() {
             renderHots(FALLBACK);
+        });
+
+        // 热门歌手（前20个）
+        var ARTIST_FALLBACK = [
+            { name: '林俊杰' }, { name: '薛之谦' }, { name: '周杰伦' },
+            { name: '陈奕迅' }, { name: '邓紫棋' }, { name: '毛不易' },
+            { name: '华晨宇' }, { name: '李荣浩' }, { name: '张学友' },
+            { name: '王菲' }, { name: '五月天' }, { name: 'Taylor Swift' },
+            { name: '许嵩' }, { name: '林宥嘉' }, { name: '张惠妹' },
+            { name: '孙燕姿' }, { name: '蔡依林' }, { name: '萧敬腾' },
+            { name: '王力宏' }, { name: '莫文蔚' }
+        ];
+
+        function renderArtists(data) {
+            var html = '';
+            data.forEach(function(item) {
+                var rankClass = '';
+                if (item.rank <= 3) rankClass = 'top' + item.rank;
+                var imgHtml = item.picUrl ? '<img src="' + escapeHtml(item.picUrl) + '" onerror="this.style.display=\'none\'">' : '';
+                html += '<span class="artist-tag ' + rankClass + '" onclick="doSearch(\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\')">' +
+                    '<span class="rank">' + item.rank + '</span>' + imgHtml + escapeHtml(item.name) + '</span>';
+            });
+            $('#artist-list').html(html);
+        }
+
+        $.getJSON('https://music163.xuanmou.com.cn/toplist/artist', function(res) {
+            try {
+                var artists = (res && res.list && res.list.artists) ? res.list.artists : [];
+                if (artists.length > 0) {
+                    var top20 = artists.slice(0, 20).map(function(a, i) {
+                        return { rank: i + 1, name: a.name, picUrl: a.picUrl ? a.picUrl.replace('http://', 'https://') : '' };
+                    });
+                    renderArtists(top20);
+                } else {
+                    var fb = ARTIST_FALLBACK.map(function(a, i) { return { rank: i + 1, name: a.name, picUrl: '' }; });
+                    renderArtists(fb);
+                }
+            } catch(e) {
+                var fb = ARTIST_FALLBACK.map(function(a, i) { return { rank: i + 1, name: a.name, picUrl: '' }; });
+                renderArtists(fb);
+            }
+        }).fail(function() {
+            var fb = ARTIST_FALLBACK.map(function(a, i) { return { rank: i + 1, name: a.name, picUrl: '' }; });
+            renderArtists(fb);
         });
     });
 </script>
