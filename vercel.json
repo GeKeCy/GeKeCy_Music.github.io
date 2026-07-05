@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/s", "destination": "/api/search-redirect" },
-    { "source": "/s/:keyword", "destination": "/api/search?keyword=:keyword" },
-    { "source": "/play/:id", "destination": "/api/play?id=:id" },
-    { "source": "/(.*)", "destination": "/$1" }
-  ]
-}
