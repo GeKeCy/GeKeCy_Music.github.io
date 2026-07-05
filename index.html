@@ -102,9 +102,9 @@
     <!-- Hot Search -->
     <div class="card shadow-sm mb-1" id="hot-search-card">
         <div class="card-body">
-            <h6 class="card-title">
-                <i class="fa fa-fire" style="color:#ff4d4f"></i> 热门搜索
-                <small class="text-muted" style="font-size:12px">实时更新</small>
+            <h6 class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fa fa-fire" style="color:#ff4d4f"></i> 热门搜索 <small class="text-muted" style="font-size:12px">实时更新</small></span>
+                <a href="hot.html" style="font-size:13px;color:#31c27c;">更多搜索 <i class="fa fa-angle-right"></i></a>
             </h6>
             <div id="hot-list" style="margin-top: 10px;">
                 <span class="text-muted">加载中...</span>
@@ -195,15 +195,15 @@
             $('#hot-list').html(html);
         }
 
-        // 调用网易云热搜API（支持CORS跨域），失败时用备用列表
-        $.getJSON('https://music163.xuanmou.com.cn/search/hot', function(res) {
+        // 调用网易云热搜API（search/hot/detail，返回20条，支持CORS跨域）
+        $.getJSON('https://music163.xuanmou.com.cn/search/hot/detail', function(res) {
             try {
-                if (res && res.code === 200 && res.result && res.result.hots) {
-                    var hots = res.result.hots.map(function(h, i) {
-                        return { rank: i + 1, keyword: h.first };
+                if (res && res.code === 200 && res.data) {
+                    var hots = res.data.map(function(h, i) {
+                        return { rank: i + 1, keyword: h.searchWord };
                     });
                     if (hots.length > 0) {
-                        renderHots(hots.slice(0, 20));
+                        renderHots(hots);
                     } else {
                         renderHots(FALLBACK);
                     }

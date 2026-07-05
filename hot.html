@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>热门歌手排行榜 - GeKeCy-music</title>
+    <title>热门搜索榜 - GeKeCy-music</title>
     <link href="static/css/common.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="static/css/site.min.css">
     <link href="//lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" type="text/css" rel="stylesheet">
@@ -25,26 +25,23 @@
         a { color: #333; text-decoration: none; background-color: transparent; }
         a:hover { color: #31c27c; text-decoration: none; }
 
-        .artist-row {
+        .hot-row {
             display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0;
             cursor: pointer; transition: background-color 0.2s;
         }
-        .artist-row:hover { background-color: #f9f9f9; }
-        .artist-row:last-child { border-bottom: none; }
-        .artist-rank {
+        .hot-row:hover { background-color: #f9f9f9; }
+        .hot-row:last-child { border-bottom: none; }
+        .hot-rank {
             width: 40px; text-align: center; font-size: 18px; font-weight: 700; color: #999; flex-shrink: 0;
         }
-        .artist-row.top1 .artist-rank { color: #ff4d4f; }
-        .artist-row.top2 .artist-rank { color: #ff7a45; }
-        .artist-row.top3 .artist-rank { color: #ffa940; }
-        .artist-avatar {
-            width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; flex-shrink: 0;
-            background-color: #f0f0f0;
-        }
-        .artist-info { flex: 1; min-width: 0; }
-        .artist-name { font-size: 16px; font-weight: 600; color: #333; }
-        .artist-meta { font-size: 12px; color: #999; margin-top: 2px; }
-        .artist-score { font-size: 13px; color: #31c27c; font-weight: 600; flex-shrink: 0; }
+        .hot-row.top1 .hot-rank { color: #ff4d4f; }
+        .hot-row.top2 .hot-rank { color: #ff7a45; }
+        .hot-row.top3 .hot-rank { color: #ffa940; }
+        .hot-info { flex: 1; min-width: 0; }
+        .hot-word { font-size: 16px; font-weight: 600; color: #333; }
+        .hot-desc { font-size: 12px; color: #999; margin-top: 2px; }
+        .hot-score { font-size: 13px; color: #ff4d4f; font-weight: 600; flex-shrink: 0; }
+        .hot-icon { font-size: 12px; margin-left: 5px; }
 
         .loading { text-align: center; padding: 40px; color: #999; }
 
@@ -70,13 +67,13 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h5 class="card-title" style="margin-bottom: 15px;">
-                <i class="fa fa-trophy" style="color:#ffa940"></i> 歌手排行榜
+                <i class="fa fa-fire" style="color:#ff4d4f"></i> 热门搜索榜
                 <small class="text-muted" style="font-size:12px">实时更新</small>
             </h5>
             <div id="loading" class="loading">
                 <i class="fa fa-spinner fa-spin"></i> 加载中...
             </div>
-            <div id="artist-list"></div>
+            <div id="hot-list"></div>
             <div id="load-error" class="loading" style="display:none;color:#ff4d4f;">
                 <i class="fa fa-exclamation-circle"></i> 加载失败，请刷新重试
             </div>
@@ -122,66 +119,52 @@
 
     $(function() {
         var FALLBACK = [
-            { name: '林俊杰', score: 63548249, albumSize: 73, musicSize: 598 },
-            { name: '薛之谦', score: 50000000, albumSize: 25, musicSize: 300 },
-            { name: '周杰伦', score: 48000000, albumSize: 40, musicSize: 500 },
-            { name: '陈奕迅', score: 45000000, albumSize: 60, musicSize: 450 },
-            { name: '邓紫棋', score: 42000000, albumSize: 20, musicSize: 250 }
+            { searchWord: '加木', score: 0, content: '' },
+            { searchWord: '海屿你', score: 0, content: '' },
+            { searchWord: '时差', score: 0, content: '' },
+            { searchWord: '阴天', score: 0, content: '' },
+            { searchWord: '无人之岛', score: 0, content: '' },
+            { searchWord: '玻璃', score: 0, content: '' },
+            { searchWord: '失眠', score: 0, content: '' },
+            { searchWord: 'Angel', score: 0, content: '' },
+            { searchWord: '空山·野马', score: 0, content: '' },
+            { searchWord: '讨厌', score: 0, content: '' }
         ];
 
-        function renderArtists(artists) {
-            $('#loading').hide();
+        function renderHots(data) {
             var html = '';
-            artists.forEach(function(a, i) {
+            data.forEach(function(item, i) {
                 var rank = i + 1;
                 var rankClass = '';
                 if (rank <= 3) rankClass = 'top' + rank;
-                var picUrl = a.picUrl ? a.picUrl.replace('http://', 'https://') : '';
-                var avatarHtml = picUrl
-                    ? '<img class="artist-avatar" src="' + escapeHtml(picUrl) + '" onerror="this.src=\'data:image/svg+xml,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' viewBox=\\\'0 0 50 50\\\'%3E%3Crect fill=\\\'%23f0f0f0\\\' width=\\\'50\\\' height=\\\'50\\\'/%3E%3Ctext x=\\\'25\\\' y=\\\'30\\\' font-size=\\\'20\\\' fill=\\\'%23999\\\' text-anchor=\\\'middle\\\'%3E' + escapeHtml(a.name.charAt(0)) + '%3C/text%3E%3C/svg%3E\'">'
-                    : '<div class="artist-avatar" style="display:flex;align-items:center;justify-content:center;font-size:20px;color:#999;">' + escapeHtml(a.name.charAt(0)) + '</div>';
-                var metaParts = [];
-                if (a.albumSize) metaParts.push(a.albumSize + '张专辑');
-                if (a.musicSize) metaParts.push(a.musicSize + '首歌曲');
-                var metaHtml = metaParts.length > 0 ? '<div class="artist-meta">' + metaParts.join(' · ') + '</div>' : '';
-                var scoreHtml = a.score ? '<div class="artist-score">' + formatScore(a.score) + '</div>' : '';
+                var descHtml = item.content ? '<div class="hot-desc">' + escapeHtml(item.content) + '</div>' : '';
+                var scoreHtml = item.score ? '<div class="hot-score">' + formatScore(item.score) + '</div>' : '';
 
-                html += '<div class="artist-row ' + rankClass + '" onclick="doSearch(\'' + escapeHtml(a.name).replace(/'/g, "\\'") + '\')">' +
-                    '<div class="artist-rank">' + rank + '</div>' +
-                    avatarHtml +
-                    '<div class="artist-info">' +
-                        '<div class="artist-name">' + escapeHtml(a.name) + '</div>' +
-                        metaHtml +
+                html += '<div class="hot-row ' + rankClass + '" onclick="doSearch(\'' + escapeHtml(item.searchWord).replace(/'/g, "\\'") + '\')">' +
+                    '<div class="hot-rank">' + rank + '</div>' +
+                    '<div class="hot-info">' +
+                        '<div class="hot-word">' + escapeHtml(item.searchWord) + '</div>' +
+                        descHtml +
                     '</div>' +
                     scoreHtml +
                 '</div>';
             });
-            $('#artist-list').html(html);
+            $('#loading').hide();
+            $('#hot-list').html(html);
         }
 
-        // 先获取排行榜100条（有热度分数），再获取额外100条补充，合并200条
-        $.when(
-            $.getJSON('https://music163.xuanmou.com.cn/toplist/artist'),
-            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=100')
-        ).then(function(res1, res2) {
+        $.getJSON('https://music163.xuanmou.com.cn/search/hot/detail', function(res) {
             try {
-                var ranked = (res1[0] && res1[0].list && res1[0].list.artists) ? res1[0].list.artists : [];
-                var extra = (res2[0] && res2[0].artists) ? res2[0].artists : [];
-                // 去重：排除排行榜已有的歌手
-                var rankedNames = {};
-                ranked.forEach(function(a) { rankedNames[a.name] = true; });
-                var filtered = extra.filter(function(a) { return !rankedNames[a.name]; });
-                var all = ranked.concat(filtered);
-                if (all.length > 0) {
-                    renderArtists(all);
+                if (res && res.code === 200 && res.data && res.data.length > 0) {
+                    renderHots(res.data);
                 } else {
-                    renderArtists(FALLBACK);
+                    renderHots(FALLBACK);
                 }
             } catch(e) {
-                renderArtists(FALLBACK);
+                renderHots(FALLBACK);
             }
         }).fail(function() {
-            renderArtists(FALLBACK);
+            renderHots(FALLBACK);
         });
     });
 </script>
