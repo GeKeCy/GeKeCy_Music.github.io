@@ -121,6 +121,49 @@
         return div.innerHTML;
     }
 
+    function isOriginalVersion(title, keyword) {
+        var t = title.toLowerCase();
+        var k = keyword.toLowerCase().trim();
+        var nonOriginalPatterns = [
+            'live', '演唱会', '现场', '伴奏', '和声', '纯音乐',
+            'dj ', 'dj版', 'remix', '版)', '片段', '翻唱',
+            'cover', '铃声', '钢琴版', '吉他版', '古筝版',
+            '纯享版', '完整版'
+        ];
+        for (var i = 0; i < nonOriginalPatterns.length; i++) {
+            if (t.indexOf(nonOriginalPatterns[i]) !== -1) {
+                return false;
+            }
+        }
+        if (t.indexOf('(') !== -1 || t.indexOf('（') !== -1) {
+            if (t.indexOf(k) === 0 && (t.indexOf('(') === k.length || t.indexOf('（') === k.length)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function sortSongs(songs, keyword) {
+        var original = [];
+        var others = [];
+        songs.forEach(function(s) {
+            if (isOriginalVersion(s.title || '', keyword)) {
+                original.push(s);
+            } else {
+                others.push(s);
+            }
+        });
+        original.sort(function(a, b) {
+            var aTitle = a.title || '';
+            var bTitle = b.title || '';
+            var aExact = aTitle === keyword ? 0 : 1;
+            var bExact = bTitle === keyword ? 0 : 1;
+            if (aExact !== bExact) return aExact - bExact;
+            return aTitle.length - bTitle.length;
+        });
+        return original.concat(others);
+    }
+
     function doSearch(keyword) {
         if (!keyword) return;
         $('#loading').show();
@@ -131,9 +174,10 @@
         $.getJSON('https://met.api.xiaoguan.fit/api?server=netease&type=search&id=' + encodeURIComponent(keyword), function(data) {
             $('#loading').hide();
             if (Array.isArray(data) && data.length > 0) {
-                $('#result-count').text(data.length);
+                var sorted = sortSongs(data, keyword);
+                $('#result-count').text(sorted.length);
                 var html = '';
-                data.forEach(function(song, i) {
+                sorted.forEach(function(song, i) {
                     var urlMatch = song.url && song.url.match(/id=(\d+)/);
                     var songId = urlMatch ? urlMatch[1] : '';
                     var title = song.title || '';
