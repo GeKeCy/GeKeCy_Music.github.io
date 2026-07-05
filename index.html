@@ -144,7 +144,7 @@
             }
         });
 
-        var HOT_LIST = [
+        var FALLBACK = [
             { rank: 1, keyword: '加木' }, { rank: 2, keyword: '海屿你' },
             { rank: 3, keyword: '时差' }, { rank: 4, keyword: '阴天' },
             { rank: 5, keyword: '无人之岛' }, { rank: 6, keyword: '玻璃' },
@@ -166,7 +166,27 @@
             $('#hot-list').html(html);
         }
 
-        renderHots(HOT_LIST);
+        // 调用网易云热搜API（支持CORS跨域），失败时用备用列表
+        $.getJSON('https://music163.xuanmou.com.cn/search/hot', function(res) {
+            try {
+                if (res && res.code === 200 && res.result && res.result.hots) {
+                    var hots = res.result.hots.map(function(h, i) {
+                        return { rank: i + 1, keyword: h.first };
+                    });
+                    if (hots.length > 0) {
+                        renderHots(hots);
+                    } else {
+                        renderHots(FALLBACK);
+                    }
+                } else {
+                    renderHots(FALLBACK);
+                }
+            } catch(e) {
+                renderHots(FALLBACK);
+            }
+        }).fail(function() {
+            renderHots(FALLBACK);
+        });
     });
 </script>
 </body>
