@@ -40,10 +40,7 @@
         .form-control { border: 1px solid #31c27c; }
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .border-info { border-color: #31c27c !important; }
-        .text-white { color: #999 !important; }
-        footer .text-white { font-size: 14px !important; }
 
-        /* 热搜标签 */
         .hot-tag {
             display: inline-block; padding: 6px 14px; margin: 4px;
             border-radius: 20px; font-size: 14px; cursor: pointer;
@@ -57,7 +54,6 @@
         .hot-tag.top3 .rank { background: #ffa940; color: #fff; }
         .hot-tag .rank { background: #f0f0f0; color: #999; }
 
-        /* footer 占满底部 */
         footer {
             flex-shrink: 0; background-color: #343a40; color: #999;
             padding: 40px 0 20px 0; margin-top: auto;
@@ -72,7 +68,7 @@
 <div class="main-content">
 <div class="container" style="max-width: 900px">
     <nav class="navbar navbar-light bg-white px-0 mb-1 font-weight-normal">
-        <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="/">
+        <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="index.html">
             <h1 class="navbar-h1">GeKeCy-music</h1>
         </a>
     </nav>
@@ -80,7 +76,7 @@
     <!-- Search Bar -->
     <div class="input-group mb-2" style="margin-top: 1rem !important;margin-bottom: .5rem !important;">
         <b class="search-img"></b>
-        <form id="search-form" method="GET" action="/s/" style="display: flex;margin: 0 auto;max-width: 600px;">
+        <form id="search-form" method="GET" action="search.html" style="display: flex;margin: 0 auto;max-width: 600px;">
         <input type="text" name="keyword" id="s-input" class="form-control text-center border border-info" placeholder="请输入歌名/歌手名" style="border-right-color: #31c27c !important;border-radius: 0.25rem 0 0 0.25rem !important;height: 40px;">
         <button type="submit" class="btn btn-custom shadow-sm rounded-sm btn-block mb-1" id="s-btn" style="width: 60px;padding: 0px;">
             <i class="fa fa-search"></i>
@@ -89,7 +85,7 @@
         <div id="invalid-msg" class="invalid-feedback"></div>
     </div>
 
-    <!-- Hot Search (动态加载) -->
+    <!-- Hot Search -->
     <div class="card shadow-sm mb-1" id="hot-search-card">
         <div class="card-body">
             <h6 class="card-title">
@@ -107,35 +103,32 @@
 <footer>
     <div class="container" style="max-width: 900px;">
         <div class="text-center">
-            <a href="/" class="font-weight-bold" style="font-size:18px;color:#fff;">GeKeCy-music</a>
+            <a href="index.html" class="font-weight-bold" style="font-size:18px;color:#fff;">GeKeCy-music</a>
             <div class="footer-links">
-                <a href="/">首页</a>
+                <a href="index.html">首页</a>
                 <a href="https://github.com/GeKeCy/GeKeCy_Music.github.io" target="_blank">GitHub</a>
             </div>
             <div style="font-size:12px;color:#666;margin-top:10px;">
-                GeKeCy-music &copy; 2026 · 仅供学习交流使用
+                GeKeCy-music &copy; 2026 &middot; 仅供学习交流使用
             </div>
         </div>
     </div>
 </footer>
 
 <script type="text/javascript">
-    // 点击热搜标签搜索
-    function doSearch(keyword) {
-        if (keyword) {
-            window.location.href = '/s/' + encodeURIComponent(keyword);
-        }
-    }
-
-    // 输入框回车搜索
     function escapeHtml(text) {
         var div = document.createElement('div');
         div.appendChild(document.createTextNode(text));
         return div.innerHTML;
     }
 
+    function doSearch(keyword) {
+        if (keyword) {
+            window.location.href = 'search.html?keyword=' + encodeURIComponent(keyword);
+        }
+    }
+
     $(function() {
-        // 输入框焦点动画
         $('#s-input').focus(function() {
             $(this).removeClass('is-invalid');
             $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
@@ -143,22 +136,47 @@
             $(".search-img").animate({"height": "0", "top": "0"}, 1000);
         });
 
-        // 加载实时热搜
-        $.get('/api/hot', function(res) {
-            if (res.code === 200 && res.data && res.data.length > 0) {
-                var html = '';
-                res.data.forEach(function(item) {
-                    var rankClass = '';
-                    if (item.rank <= 3) rankClass = 'top' + item.rank;
-                    html += '<span class="hot-tag ' + rankClass + '" onclick="doSearch(\'' + escapeHtml(item.keyword).replace(/'/g, "\\'") + '\')">' +
-                        '<span class="rank">' + item.rank + '</span>' + escapeHtml(item.keyword) + '</span>';
-                });
-                $('#hot-list').html(html);
-            } else {
-                $('#hot-list').html('<span class="text-muted">暂无热搜数据</span>');
+        var FALLBACK = [
+            { rank: 1, keyword: '加木' }, { rank: 2, keyword: '海屿你' },
+            { rank: 3, keyword: '时差' }, { rank: 4, keyword: '阴天' },
+            { rank: 5, keyword: '无人之岛' }, { rank: 6, keyword: '玻璃' },
+            { rank: 7, keyword: '失眠' }, { rank: 8, keyword: 'Angel' },
+            { rank: 9, keyword: '空山·野马' }, { rank: 10, keyword: '讨厌' },
+            { rank: 11, keyword: '周杰伦' }, { rank: 12, keyword: '林俊杰' },
+            { rank: 13, keyword: '薛之谦' }, { rank: 14, keyword: '邓紫棋' },
+            { rank: 15, keyword: '陈奕迅' }
+        ];
+
+        function renderHots(data) {
+            var html = '';
+            data.forEach(function(item) {
+                var rankClass = '';
+                if (item.rank <= 3) rankClass = 'top' + item.rank;
+                html += '<span class="hot-tag ' + rankClass + '" onclick="doSearch(\'' + escapeHtml(item.keyword).replace(/'/g, "\\'") + '\')">' +
+                    '<span class="rank">' + item.rank + '</span>' + escapeHtml(item.keyword) + '</span>';
+            });
+            $('#hot-list').html(html);
+        }
+
+        var hotApiUrl = 'https://music.163.com/api/search/hot?type=1111';
+        var corsProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(hotApiUrl);
+
+        $.get(corsProxy, function(raw) {
+            try {
+                var data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                if (data && data.result && data.result.hots) {
+                    var hots = data.result.hots.map(function(h, i) {
+                        return { rank: i + 1, keyword: h.first };
+                    });
+                    renderHots(hots);
+                } else {
+                    renderHots(FALLBACK);
+                }
+            } catch(e) {
+                renderHots(FALLBACK);
             }
         }).fail(function() {
-            $('#hot-list').html('<span class="text-muted">加载失败，请刷新重试</span>');
+            renderHots(FALLBACK);
         });
     });
 </script>
