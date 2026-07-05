@@ -1,41 +1,64 @@
-module.exports = async (req, res) => {
-    try {
-        const { execSync } = require('child_process');
-        // 调用网易云热搜榜 API
-        const raw = execSync(
-            `curl -s --max-time 10 "https://music.163.com/api/search/hot?type=1111"`,
-            { timeout: 15000 }
-        ).toString();
-        const data = JSON.parse(raw);
+const https = require('https');
 
-        if (data && data.result && data.result.hots) {
-            const hots = data.result.hots.map((h, i) => ({
-                rank: i + 1,
-                keyword: h.first
-            }));
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.json({ code: 200, data: hots });
-        } else {
-            // 备用：如果官方API失效，返回默认热门
-            const fallback = [
-                { rank: 1, keyword: '周杰伦' }, { rank: 2, keyword: '林俊杰' },
-                { rank: 3, keyword: '薛之谦' }, { rank: 4, keyword: '邓紫棋' },
-                { rank: 5, keyword: '陈奕迅' }, { rank: 6, keyword: '许嵩' },
-                { rank: 7, keyword: '李荣浩' }, { rank: 8, keyword: '赵雷' },
-                { rank: 9, keyword: 'Beyond' }, { rank: 10, keyword: '刘德华' }
-            ];
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.json({ code: 200, data: fallback });
-        }
+function fetchHotSearch() {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'music.163.com',
+            path: '/api/search/hot?type=1111',
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Referer': 'https://music.163.com/',
+                'Accept': 'application/json'
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    if (json && json.result && json.result.hots) {
+                        resolve(json.result.hots.map((h, i) => ({
+                            rank: i + 1,
+                            keyword: h.first
+                        })));
+                    } else {
+                        reject(new Error('No hots data'));
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        req.on('error', (e) => reject(e));
+        req.setTimeout(10000, () => { req.destroy(); reject(new Error('timeout')); });
+        req.end();
+    });
+}
+
+const FALLBACK = [
+    { rank: 1, keyword: '加木' }, { rank: 2, keyword: '海屿你' },
+    { rank: 3, keyword: '时差' }, { rank: 4, keyword: '阴天' },
+    { rank: 5, keyword: '无人之岛' }, { rank: 6, keyword: '玻璃' },
+    { rank: 7, keyword: '失眠' }, { rank: 8, keyword: 'Angel' },
+    { rank: 9, keyword: '空山·野马' }, { rank: 10, keyword: '讨厌' },
+    { rank: 11, keyword: '周杰伦' }, { rank: 12, keyword: '林俊杰' },
+    { rank: 13, keyword: '薛之谦' }, { rank: 14, keyword: '邓紫棋' },
+    { rank: 15, keyword: '陈奕迅' }
+];
+
+module.exports = async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
+    try {
+        const hots = await fetchHotSearch();
+        res.json({ code: 200, data: hots });
     } catch (e) {
-        const fallback = [
-            { rank: 1, keyword: '周杰伦' }, { rank: 2, keyword: '林俊杰' },
-            { rank: 3, keyword: '薛之谦' }, { rank: 4, keyword: '邓紫棋' },
-            { rank: 5, keyword: '陈奕迅' }, { rank: 6, keyword: '许嵩' },
-            { rank: 7, keyword: '李荣浩' }, { rank: 8, keyword: '赵雷' },
-            { rank: 9, keyword: 'Beyond' }, { rank: 10, keyword: '刘德华' }
-        ];
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.json({ code: 200, data: fallback });
+        // 备用数据，保证永远能返回
+        res.json({ code: 200, data: FALLBACK });
     }
 };
