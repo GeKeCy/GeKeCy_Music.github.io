@@ -129,7 +129,6 @@ function generateCommonHead(title) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>${escapeHtml(title)}</title>
-    <link rel="shortcut icon" href="/static/img/logo.svg" type="image/svg+xml">
     <link href="/static/css/common.css" rel="stylesheet">
     <link href="//lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <link href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
@@ -168,21 +167,15 @@ function generateCommonHead(title) {
 
 function generateNavbar(keyword) {
   return `
-<nav class="navbar navbar-expand-md navbar-light bg-white px-0 mb-1 font-weight-normal">
+<nav class="navbar navbar-light bg-white px-0 mb-1 font-weight-normal">
     <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="/">
-        <img src="/static/img/logo.svg" width="38" height="38" class="d-inline-block align-middle" alt="Logo" style="margin: 5px;margin-bottom: 10px;">
         <h1 class="navbar-h1">GeKeCy_Music</h1>
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/"><i class="fa fa-search"></i> 搜索</a>
-            </li>
-        </ul>
-    </div>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fa fa-search"></i> 搜索</a>
+        </li>
+    </ul>
 </nav>`;
 }
 
