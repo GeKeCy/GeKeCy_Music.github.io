@@ -65,10 +65,13 @@
             cursor: pointer;
             padding: 4px 8px;
             transition: color 0.2s;
+            position: relative;
+        }
+        .back-to-top:hover { color: #2ab06d; }
+        .back-to-top.active {
             text-decoration: underline;
             text-underline-offset: 3px;
         }
-        .back-to-top:hover { color: #2ab06d; }
         .page-content { padding-top: 56px; }
 
         .hot-tag {
@@ -114,7 +117,7 @@
         <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="index.html">
             <h1 class="navbar-h1">GeKeCy-music</h1>
         </a>
-        <a class="back-to-top" onclick="window.scrollTo(0, 0)">
+        <a class="back-to-top" onclick="scrollToTop(this)">
                 ↑ 回到顶部
             </a>
     </div>
@@ -188,6 +191,14 @@
         if (keyword) {
             window.location.href = 'search.html?keyword=' + encodeURIComponent(keyword);
         }
+    }
+
+    function scrollToTop(el) {
+        window.scrollTo(0, 0);
+        el.classList.add('active');
+        setTimeout(function() {
+            el.classList.remove('active');
+        }, 2000);
     }
 
     $(function() {
