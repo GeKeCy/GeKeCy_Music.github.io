@@ -24,14 +24,14 @@
         .form-control { border: 1px solid #31c27c; }
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .quote-warning { border-left: 4px solid #31c27c; background-color: #f8f9fa; padding: .5rem; color: #434343; }
-        .table { width: 100%; margin-bottom: 0rem; color: #212529; }
-        .table td, .table th { font-size: 15px; color: #999; padding: 1.15rem; vertical-align: middle; border-top: 0px solid #dee2e6; }
+        .table { width: 100%; margin-bottom: 0rem; color: #212529; table-layout: auto; }
+        .table td, .table th { font-size: 15px; color: #999; padding: 1.15rem; vertical-align: middle; border-top: 0px solid #dee2e6; white-space: normal; word-break: break-all; word-wrap: break-word; }
         .table-striped tbody tr:nth-child(odd) { background-color: #ffffff; }
         .table-striped tbody tr:nth-child(even) { background-color: #fafafa; }
         .table-striped tbody tr:hover { background-color: #f5f5f5; }
         .table thead th { vertical-align: bottom; border-bottom: 0px solid #dee2e6; }
         .text-info { color: #333 !important; }
-        .font-weight-bold { font-weight: 545 !important; font-size: 15px; line-height: 1; }
+        .font-weight-bold { font-weight: 545 !important; font-size: 15px; line-height: 1.4; }
         .loading { text-align: center; padding: 40px; color: #999; }
         .original-tag {
             display: inline-block;
@@ -204,7 +204,7 @@
                     var tagHtml = isOrig ? '<span class="original-tag">原唱</span>' : '';
                     if (songId) {
                         html += '<tr>' +
-                            '<td style="font-size: 17px;color: grey;font-weight: 700;width: 56px;text-align: center;">' + (i + 1) + '</td>' +
+                            '<td style="font-size: 17px;color: grey;font-weight: 700;width: 60px;text-align: center;white-space: nowrap;">' + (i + 1) + '</td>' +
                             '<td>' + tagHtml + '<a href="play.html?id=' + encodeURIComponent(songId) + '" class="text-info font-weight-bold">' + escapeHtml(title) + '</a></td>' +
                             '<td style="color: #666;font-size: 15px;">' + escapeHtml(artist) + '</td>' +
                             '</tr>';
