@@ -49,24 +49,11 @@
             font-size: 13px;
             cursor: pointer;
             padding: 4px 8px;
-            position: relative;
             transition: color 0.2s;
+            text-decoration: underline;
+            text-underline-offset: 3px;
         }
         .back-to-top:hover { color: #2ab06d; }
-        .back-to-top.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #31c27c;
-            animation: fadeOut 2s forwards;
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
         .page-content { padding-top: 56px; }
 
         .aplayer-container { width: 80%; max-width: 800px; position: relative; }
@@ -109,8 +96,8 @@
         <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="index.html">
             <h1 class="navbar-h1">GeKeCy-music</h1>
         </a>
-        <a class="back-to-top" onclick="scrollToTop(this)">
-                <i class="fa fa-arrow-up"></i> 回到顶部
+        <a class="back-to-top" onclick="window.scrollTo(0, 0)">
+                ↑ 回到顶部
             </a>
     </div>
 </div>
@@ -206,14 +193,6 @@
         var div = document.createElement('div');
         div.appendChild(document.createTextNode(text));
         return div.innerHTML;
-    }
-
-    function scrollToTop(el) {
-        window.scrollTo(0, 0);
-        el.classList.add('active');
-        setTimeout(function() {
-            el.classList.remove('active');
-        }, 2000);
     }
 
     var songData = null;
