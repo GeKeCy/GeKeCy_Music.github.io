@@ -12,9 +12,9 @@
     <script src="//lib.baomitu.com/jquery/3.6.0/jquery.min.js" type="application/javascript"></script>
     <script defer src="//lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" type="application/javascript"></script>
     <style>
-        html, body { height: auto; margin: 0; }
+        html, body { height: auto; margin: 0; overflow-x: hidden; }
         body { display: flex; flex-direction: column; font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, STHeiTi, sans-serif; }
-        .main-content { flex: 0 0 auto; }
+        .main-content { flex: 0 0 auto; width: 100%; }
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .card {
             margin-top: 15px; position: relative; display: flex; flex-direction: column;
@@ -50,7 +50,7 @@
 
         footer {
             flex-shrink: 0; background-color: #343a40; color: #999;
-            padding: 40px 0 20px 0; margin-top: auto;
+            padding: 40px 0 20px 0; margin-top: 30px; width: 100%;
         }
         footer a { color: #ccc; }
         footer a:hover { color: #31c27c; }

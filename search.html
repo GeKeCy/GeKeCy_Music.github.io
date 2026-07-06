@@ -11,9 +11,9 @@
     <script src="//lib.baomitu.com/jquery/3.6.0/jquery.min.js" type="application/javascript"></script>
     <script defer src="//lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" type="application/javascript"></script>
     <style>
-        html, body { height: auto; margin: 0; }
+        html, body { height: auto; margin: 0; overflow-x: hidden; }
         body { display: flex; flex-direction: column; font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, STHeiTi, sans-serif; }
-        .main-content { flex: 0 0 auto; }
+        .main-content { flex: 0 0 auto; width: 100%; }
         .badge { margin-right: 3px; display: inline-block; padding: .25em .6em; font-size: 75%; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.7rem; }
         .card { margin-top: 15px; position: relative; display: flex; flex-direction: column; min-width: 0; word-wrap: break-word; background-color: #fff; background-clip: border-box; border: 1px solid rgba(0, 0, 0, .125); border-radius: .5rem; font-size: 15px; }
         .btn-custom { background-color: #31c27c; border-color: #31c27c; color: white; border-radius: 0 0.25rem 0.25rem 0 !important; height: 40px; }
@@ -24,12 +24,15 @@
         .form-control { border: 1px solid #31c27c; }
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .quote-warning { border-left: 4px solid #31c27c; background-color: #f8f9fa; padding: .5rem; color: #434343; }
-        .table { width: 100%; margin-bottom: 0rem; color: #212529; }
-        .table td, .table th { font-size: 15px; color: #999; padding: 1.15rem; vertical-align: middle; border-top: 0px solid #dee2e6; }
+        .table { width: 100%; margin-bottom: 0rem; color: #212529; table-layout: fixed; }
+        .table td, .table th { font-size: 15px; color: #999; padding: .75rem; vertical-align: middle; border-top: 0px solid #dee2e6; }
         .table-striped tbody tr:nth-child(odd) { background-color: #ffffff; }
         .table-striped tbody tr:nth-child(even) { background-color: #fafafa; }
         .table-striped tbody tr:hover { background-color: #f5f5f5; }
         .table thead th { vertical-align: bottom; border-bottom: 0px solid #dee2e6; }
+        .table td:first-child { width: 50px; text-align: center; }
+        .table td:nth-child(2) { word-break: break-all; }
+        .table td:nth-child(3) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .text-info { color: #333 !important; }
         .font-weight-bold { font-weight: 545 !important; font-size: 15px; line-height: 1; }
         .loading { text-align: center; padding: 40px; color: #999; }
@@ -43,10 +46,11 @@
             margin-right: 8px;
             font-weight: 500;
             vertical-align: middle;
+            white-space: nowrap;
         }
         footer {
             flex-shrink: 0; background-color: #343a40; color: #999;
-            padding: 40px 0 20px 0; margin-top: auto;
+            padding: 40px 0 20px 0; margin-top: 30px; width: 100%;
         }
         footer a { color: #ccc; }
         footer a:hover { color: #31c27c; }
