@@ -45,16 +45,28 @@
             height: 56px;
         }
         .back-to-top {
-            background-color: #31c27c;
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            padding: 6px 14px;
+            color: #31c27c;
             font-size: 13px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            padding: 4px 8px;
+            position: relative;
+            transition: color 0.2s;
         }
-        .back-to-top:hover { background-color: #2ab06d; }
+        .back-to-top:hover { color: #2ab06d; }
+        .back-to-top.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #31c27c;
+            animation: fadeOut 2s forwards;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
         .page-content { padding-top: 56px; }
 
         .aplayer-container { width: 80%; max-width: 800px; position: relative; }
@@ -97,9 +109,9 @@
         <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="index.html">
             <h1 class="navbar-h1">GeKeCy-music</h1>
         </a>
-        <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-            <i class="fa fa-arrow-up"></i> 回到顶部
-        </button>
+        <a class="back-to-top" onclick="scrollToTop(this)">
+                <i class="fa fa-arrow-up"></i> 回到顶部
+            </a>
     </div>
 </div>
 <div class="main-content page-content">
@@ -194,6 +206,14 @@
         var div = document.createElement('div');
         div.appendChild(document.createTextNode(text));
         return div.innerHTML;
+    }
+
+    function scrollToTop(el) {
+        window.scrollTo(0, 0);
+        el.classList.add('active');
+        setTimeout(function() {
+            el.classList.remove('active');
+        }, 2000);
     }
 
     var songData = null;
