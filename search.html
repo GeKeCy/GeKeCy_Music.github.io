@@ -25,13 +25,13 @@
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .quote-warning { border-left: 4px solid #31c27c; background-color: #f8f9fa; padding: .5rem; color: #434343; }
         .table { width: 100%; margin-bottom: 0rem; color: #212529; table-layout: auto; }
-        .table td, .table th { font-size: 15px; color: #999; padding: 1.15rem; vertical-align: middle; border-top: 0px solid #dee2e6; white-space: normal; word-break: break-all; word-wrap: break-word; }
+        .table td, .table th { font-size: 14px; color: #999; padding: 1rem; vertical-align: middle; border-top: 0px solid #dee2e6; white-space: normal; word-break: break-all; word-wrap: break-word; }
         .table-striped tbody tr:nth-child(odd) { background-color: #ffffff; }
         .table-striped tbody tr:nth-child(even) { background-color: #fafafa; }
         .table-striped tbody tr:hover { background-color: #f5f5f5; }
         .table thead th { vertical-align: bottom; border-bottom: 0px solid #dee2e6; }
         .text-info { color: #333 !important; }
-        .font-weight-bold { font-weight: 545 !important; font-size: 15px; line-height: 1.4; }
+        .font-weight-bold { font-weight: 545 !important; font-size: 14px; line-height: 1.4; }
         .loading { text-align: center; padding: 40px; color: #999; }
         .original-tag {
             display: inline-block;
@@ -155,17 +155,24 @@
         return true;
     }
 
+    function isMatchKeyword(title, artist, keyword) {
+        var t = (title || '').toLowerCase();
+        var a = (artist || '').toLowerCase();
+        var k = keyword.toLowerCase().trim();
+        return t.indexOf(k) !== -1 || a.indexOf(k) !== -1;
+    }
+
     function sortSongs(songs, keyword) {
-        var original = [];
+        var matched = [];
         var others = [];
         songs.forEach(function(s) {
-            if (isOriginalVersion(s.title || '', keyword)) {
-                original.push(s);
+            if (isMatchKeyword(s.title, s.author, keyword)) {
+                matched.push(s);
             } else {
                 others.push(s);
             }
         });
-        original.sort(function(a, b) {
+        matched.sort(function(a, b) {
             var aTitle = a.title || '';
             var bTitle = b.title || '';
             var aExact = aTitle === keyword ? 0 : 1;
@@ -173,7 +180,7 @@
             if (aExact !== bExact) return aExact - bExact;
             return aTitle.length - bTitle.length;
         });
-        return original.concat(others);
+        return matched.concat(others);
     }
 
     function doSearch(keyword) {
