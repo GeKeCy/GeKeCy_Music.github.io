@@ -24,6 +24,37 @@
         .form-control { border: 1px solid #31c27c; }
         .navbar-h1 { display: inline; font-size: 1.5rem; font-weight: 700; }
         .quote-warning { border-left: 4px solid #31c27c; background-color: #f8f9fa; padding: .5rem; color: #434343; }
+
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .navbar-fixed .nav-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+        }
+        .back-to-top {
+            background-color: #31c27c;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .back-to-top:hover { background-color: #2ab06d; }
+        .page-content { padding-top: 56px; }
         .table { width: 100%; margin-bottom: 0rem; color: #212529; table-layout: auto; }
         .table td, .table th { font-size: 14px; color: #999; padding: 1rem; vertical-align: middle; border-top: 0px solid #dee2e6; white-space: normal; word-break: break-all; word-wrap: break-word; }
         .table-striped tbody tr:nth-child(odd) { background-color: #ffffff; }
@@ -56,13 +87,18 @@
     </style>
 </head>
 <body>
-<div class="main-content">
-<div class="container" style="max-width: 900px">
-    <nav class="navbar navbar-light bg-white px-0 mb-1 font-weight-normal">
+<div class="navbar-fixed">
+    <div class="nav-container">
         <a class="navbar-brand font-weight-bolder" style="font-size: 1.5rem; color: #50514F;" href="index.html">
             <h1 class="navbar-h1">GeKeCy-music</h1>
         </a>
-    </nav>
+        <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <i class="fa fa-arrow-up"></i> 回到顶部
+        </button>
+    </div>
+</div>
+<div class="main-content page-content">
+<div class="container" style="max-width: 900px">
 
     <form id="search-form" style="margin-top: 1rem !important;margin-bottom: .5rem !important;">
         <div class="input-group">
