@@ -279,6 +279,13 @@
     }
 
     $(function() {
+        $('input, textarea').on('focus', function() {
+            var scrollTop = $(window).scrollTop();
+            setTimeout(function() {
+                $(window).scrollTop(scrollTop);
+            }, 50);
+        });
+
         var keyword = getQueryParam('keyword');
         if (keyword) {
             $('#keyword-input').val(keyword);

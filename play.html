@@ -302,7 +302,14 @@
     }
 
     $(function() {
-        var songId = getQueryParam('id');
+        $('input, textarea').on('focus', function() {
+            var scrollTop = $(window).scrollTop();
+            setTimeout(function() {
+                $(window).scrollTop(scrollTop);
+            }, 50);
+        });
+
+        var id = getQueryParam('id');
         if (songId) {
             loadSong(songId);
         } else {
