@@ -206,21 +206,11 @@
     }
 
     $(function() {
-        var lockScrollY = null;
-        function preventScroll() {
-            if (lockScrollY !== null) {
-                window.scrollTo(0, lockScrollY);
-            }
-        }
         $('#s-input').focus(function() {
             $(this).removeClass('is-invalid');
-            $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
-            lockScrollY = window.scrollY;
-            window.addEventListener('scroll', preventScroll, { passive: false });
+            $(".search-img").css({"height": "24px", "top": "-24px"});
         }).blur(function() {
-            $(".search-img").animate({"height": "0", "top": "0"}, 1000);
-            lockScrollY = null;
-            window.removeEventListener('scroll', preventScroll);
+            $(".search-img").css({"height": "0", "top": "0"});
         });
 
         $('#search-form').submit(function(e) {
