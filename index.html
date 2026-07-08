@@ -206,13 +206,6 @@
     }
 
     $(function() {
-        $('#s-input').focus(function() {
-            $(this).removeClass('is-invalid');
-            $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
-        }).blur(function() {
-            $(".search-img").animate({"height": "0", "top": "0"}, 1000);
-        });
-
         $('#search-form').submit(function(e) {
             e.preventDefault();
             var keyword = $('#s-input').val().trim();
