@@ -42,7 +42,7 @@
         .border-info { border-color: #31c27c !important; }
 
         .navbar-fixed {
-            position: sticky;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -76,7 +76,7 @@
             text-decoration: underline;
             text-underline-offset: 3px;
         }
-        .page-content { padding-top: 0; }
+        .page-content { padding-top: 80px; }
 
         .hot-tag {
             display: inline-block; padding: 6px 14px; margin: 4px;
@@ -133,7 +133,7 @@
     <div class="input-group mb-2" style="margin-top: 1rem !important;margin-bottom: .5rem !important;">
         <b class="search-img"></b>
         <form id="search-form" style="display: flex;">
-        <input type="text" id="s-input" class="form-control text-center border border-info" placeholder="请输入歌名/歌手名" style="border-right-color: #31c27c !important;border-radius: 0.25rem 0 0 0.25rem !important;height: 40px;flex:1;scroll-margin-top:80px;">
+        <input type="text" id="s-input" class="form-control text-center border border-info" placeholder="请输入歌名/歌手名" style="border-right-color: #31c27c !important;border-radius: 0.25rem 0 0 0.25rem !important;height: 40px;flex:1;">
         <button type="submit" class="btn btn-custom shadow-sm rounded-sm btn-block mb-1" id="s-btn" style="width: 60px;padding: 0px;flex-shrink: 0;">
             <i class="fa fa-search"></i>
         </button>
@@ -208,9 +208,9 @@
     $(function() {
         $('#s-input').focus(function() {
             $(this).removeClass('is-invalid');
-            $(".search-img").css({"height": "24px", "top": "-24px"});
+            $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
         }).blur(function() {
-            $(".search-img").css({"height": "0", "top": "0"});
+            $(".search-img").animate({"height": "0", "top": "0"}, 1000);
         });
 
         $('#search-form').submit(function(e) {
