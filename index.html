@@ -209,6 +209,12 @@
         $('#s-input').focus(function() {
             $(this).removeClass('is-invalid');
             $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
+            var scrollY = window.scrollY;
+            setTimeout(function() {
+                if (window.scrollY !== scrollY) {
+                    window.scrollTo(0, scrollY);
+                }
+            }, 50);
         }).blur(function() {
             $(".search-img").animate({"height": "0", "top": "0"}, 1000);
         });
