@@ -208,9 +208,12 @@
     $(function() {
         $('input, textarea').on('focus', function() {
             var scrollTop = $(window).scrollTop();
-            setTimeout(function() {
+            var timer = setInterval(function() {
                 $(window).scrollTop(scrollTop);
-            }, 50);
+            }, 10);
+            $(this).one('blur', function() {
+                clearInterval(timer);
+            });
         });
 
         $('#search-form').submit(function(e) {
