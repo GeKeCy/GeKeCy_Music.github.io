@@ -171,16 +171,6 @@
     }
 
     $(function() {
-        $('input, textarea').on('focus', function() {
-            var scrollTop = $(window).scrollTop();
-            var timer = setInterval(function() {
-                $(window).scrollTop(scrollTop);
-            }, 10);
-            $(this).one('blur', function() {
-                clearInterval(timer);
-            });
-        });
-
         var FALLBACK = [
             { name: '林俊杰', score: 63548249, albumSize: 73, musicSize: 598 },
             { name: '薛之谦', score: 50000000, albumSize: 25, musicSize: 300 },

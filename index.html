@@ -206,14 +206,11 @@
     }
 
     $(function() {
-        $('input, textarea').on('focus', function() {
-            var scrollTop = $(window).scrollTop();
-            var timer = setInterval(function() {
-                $(window).scrollTop(scrollTop);
-            }, 10);
-            $(this).one('blur', function() {
-                clearInterval(timer);
-            });
+        $('#s-input').focus(function() {
+            $(this).removeClass('is-invalid');
+            $(".search-img").animate({"height": "24px", "top": "-24px"}, 1000);
+        }).blur(function() {
+            $(".search-img").animate({"height": "0", "top": "0"}, 1000);
         });
 
         $('#search-form').submit(function(e) {

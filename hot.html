@@ -248,16 +248,6 @@
     }
 
     $(function() {
-        $('input, textarea').on('focus', function() {
-            var scrollTop = $(window).scrollTop();
-            var timer = setInterval(function() {
-                $(window).scrollTop(scrollTop);
-            }, 10);
-            $(this).one('blur', function() {
-                clearInterval(timer);
-            });
-        });
-
         $('.tab-item').click(function() {
             var tab = $(this).data('tab');
             $('.tab-item').removeClass('active');
