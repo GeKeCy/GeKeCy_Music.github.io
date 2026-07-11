@@ -233,7 +233,7 @@
     }
 
     function getPlaylist(id, callback) {
-        $.getJSON('https://music163.xuanmou.com.cn/playlist/detail?id=' + id, function(res) {
+        $.getJSON('/api/playlist-detail?id=' + id, function(res) {
             try {
                 var tracks = (res && res.playlist && res.playlist.tracks) ? res.playlist.tracks : [];
                 var list = tracks.map(function(t) {
@@ -257,7 +257,7 @@
         });
 
         // 热搜榜
-        $.getJSON('https://music163.xuanmou.com.cn/search/hot/detail', function(res) {
+        $.getJSON('/api/hot-detail', function(res) {
             try {
                 var data = (res && res.code === 200 && res.data) ? res.data : [];
                 if (data.length > 0) {

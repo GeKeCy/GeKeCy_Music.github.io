@@ -213,7 +213,7 @@
     var songData = null;
 
     function loadSong(songId) {
-        $.getJSON('https://api.paugram.com/netease/?id=' + encodeURIComponent(songId), function(data) {
+        $.getJSON('/api/play-url?id=' + encodeURIComponent(songId), function(data) {
             songData = data;
             if (data && data.title) {
                 $('#loading').hide();

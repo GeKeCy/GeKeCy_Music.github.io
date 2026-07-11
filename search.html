@@ -240,7 +240,7 @@
         $('#no-result').hide();
         $('#result-count').text('0');
 
-        $.getJSON('https://met.api.xiaoguan.fit/api?server=netease&type=search&id=' + encodeURIComponent(keyword), function(data) {
+        $.getJSON('/api/search?keyword=' + encodeURIComponent(keyword), function(data) {
             $('#loading').hide();
             if (Array.isArray(data) && data.length > 0) {
                 var sorted = sortSongs(data, keyword);

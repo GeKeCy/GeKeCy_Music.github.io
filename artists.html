@@ -211,9 +211,9 @@
 
         // 获取排行榜100条（有热度分数）+ offset=100/200补充，去重后取前200条
         $.when(
-            $.getJSON('https://music163.xuanmou.com.cn/toplist/artist'),
-            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=100'),
-            $.getJSON('https://music163.xuanmou.com.cn/artist/list?cat=5001&limit=100&offset=200')
+            $.getJSON('/api/toplist-artist'),
+            $.getJSON('/api/artist-list?cat=5001&limit=100&offset=100'),
+            $.getJSON('/api/artist-list?cat=5001&limit=100&offset=200')
         ).then(function(res1, res2, res3) {
             try {
                 var ranked = (res1[0] && res1[0].list && res1[0].list.artists) ? res1[0].list.artists : [];

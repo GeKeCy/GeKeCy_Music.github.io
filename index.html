@@ -246,7 +246,7 @@
         }
 
         // 调用网易云热搜API（search/hot/detail，返回20条，支持CORS跨域）
-        $.getJSON('https://music163.xuanmou.com.cn/search/hot/detail', function(res) {
+        $.getJSON('/api/hot-detail', function(res) {
             try {
                 if (res && res.code === 200 && res.data) {
                     var hots = res.data.map(function(h, i) {
@@ -290,7 +290,7 @@
             $('#artist-list').html(html);
         }
 
-        $.getJSON('https://music163.xuanmou.com.cn/toplist/artist', function(res) {
+        $.getJSON('/api/toplist-artist', function(res) {
             try {
                 var artists = (res && res.list && res.list.artists) ? res.list.artists : [];
                 if (artists.length > 0) {
