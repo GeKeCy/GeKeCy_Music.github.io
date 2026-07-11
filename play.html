@@ -213,15 +213,16 @@
     var songData = null;
 
     function loadSong(songId) {
-        $.getJSON('/api/play-url?id=' + encodeURIComponent(songId), function(data) {
+        $.getJSON('/api/play-url?id=' + encodeURIComponent(songId), function(res) {
+            var data = (res && res.data) ? res.data : res;
             songData = data;
             if (data && data.title) {
                 $('#loading').hide();
                 $('#player-container').show();
 
                 var songName = data.title || '未知歌曲';
-                var artistName = data.artist || '未知歌手';
-                var mp3Url = data.link || '';
+                var artistName = data.author || '未知歌手';
+                var mp3Url = data.url || '';
                 var coverUrl = data.cover || 'https://img2.kuwo.cn/star/albumcover/500/s4s86/95/3059703046.jpg';
                 var lrcText = data.lyric || '';
 
