@@ -454,43 +454,66 @@ async function handleTest() {
     
     try {
         const resp1 = await fetch(GEQUBAO_BASE + '/', {
-            headers: getBrowserHeaders(GEQUBAO_BASE + '/'),
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive'
+            },
             cf: { cacheTtl: 0 }
         });
-        results.homepage = {
+        const cookies = resp1.headers.get('set-cookie') || '';
+        const body = await resp1.text();
+        results.test1_iphone = {
             status: resp1.status,
-            statusText: resp1.statusText,
-            contentType: resp1.headers.get('content-type'),
-            bodyLength: (await resp1.text()).length
+            cookies: cookies.substring(0, 100),
+            bodyLength: body.length,
+            bodyStart: body.substring(0, 100)
         };
     } catch (e) {
-        results.homepage = { error: e.message, name: e.name };
+        results.test1_iphone = { error: e.message, name: e.name };
     }
     
     try {
-        const resp2 = await fetch(GEQUBAO_BASE + '/hot-words', {
-            headers: getBrowserHeaders(GEQUBAO_BASE + '/'),
+        const resp2 = await fetch(GEQUBAO_BASE + '/s/%E5%91%A8%E6%9D%B0%E4%BC%A6', {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'zh-CN,zh;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Referer': GEQUBAO_BASE + '/',
+                'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+                'Sec-Ch-Ua-Mobile': '?0',
+                'Sec-Ch-Ua-Platform': '"Windows"',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'same-origin',
+                'Sec-Fetch-User': '?1',
+                'Upgrade-Insecure-Requests': '1'
+            },
             cf: { cacheTtl: 0 }
         });
-        results.hotwords = {
+        const body2 = await resp2.text();
+        results.test2_chrome = {
             status: resp2.status,
-            contentType: resp2.headers.get('content-type'),
-            bodyLength: (await resp2.text()).length
+            bodyLength: body2.length,
+            hasResults: body2.includes('text-primary')
         };
     } catch (e) {
-        results.hotwords = { error: e.message, name: e.name };
+        results.test2_chrome = { error: e.message, name: e.name };
     }
     
     try {
-        const resp3 = await fetch('https://api.github.com/', {
-            headers: { 'User-Agent': 'Cloudflare-Workers' }
+        const resp3 = await fetch('https://music163.xuanmou.com.cn/search/hot/detail', {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
         });
-        results.github = {
+        results.test3_other_api = {
             status: resp3.status,
             bodyLength: (await resp3.text()).length
         };
     } catch (e) {
-        results.github = { error: e.message, name: e.name };
+        results.test3_other_api = { error: e.message, name: e.name };
     }
     
     return jsonResponse({ test: results });
