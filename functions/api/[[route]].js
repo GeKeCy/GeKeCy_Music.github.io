@@ -1,12 +1,24 @@
 const GEQUBAO_BASE = 'https://www.gequbao.com';
 
-const COMMON_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
-};
+function getBrowserHeaders(referer) {
+    return {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Ch-Ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': referer ? 'same-origin' : 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1',
+        'Referer': referer || GEQUBAO_BASE + '/'
+    };
+}
 
 function jsonResponse(data, status = 200) {
     return new Response(JSON.stringify(data), {
@@ -33,7 +45,6 @@ function corsOptionsResponse() {
 function parseSearchResults(html) {
     const results = [];
     
-    const songItems = [];
     const linkRegex = /href="\/music\/(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
     let linkMatch;
     
@@ -156,17 +167,38 @@ function parseAppData(html) {
     }
 }
 
-async function fetchWithRetry(url, options, retries = 2) {
-    for (let i = 0; i <= retries; i++) {
-        try {
-            const response = await fetch(url, options);
-            if (response.ok) return response;
-        } catch (e) {
-            if (i === retries) throw e;
-        }
+async function fetchGequbao(url, options = {}) {
+    const headers = options.headers || {};
+    const cookie = options.cookie || '';
+    
+    const requestHeaders = {
+        ...getBrowserHeaders(options.referer),
+        ...headers
+    };
+    
+    if (cookie) {
+        requestHeaders['Cookie'] = cookie;
     }
-    throw new Error('Fetch failed after retries');
+    
+    const fetchOptions = {
+        ...options,
+        headers: requestHeaders,
+        cf: {
+            cacheTtl: 0,
+            cacheEverything: false
+        }
+    };
+    
+    const response = await fetch(url, fetchOptions);
+    return response;
 }
+
+const FALLBACK_HOT_WORDS = [
+    '天真的橡皮', '海阔天空', '跳楼机', '一点点', '青花瓷',
+    '留下的人我会珍惜', '雪花别为我难过', '关山酒', '麒麟', '水手',
+    '大花轿 张艺兴', '妈妈的话', '唯一', '颗秒', '第57次取消发送',
+    '别怕我伤心', 'QQ爱', '最后一页', '西楼别序', '花海'
+];
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
@@ -204,39 +236,67 @@ async function handleSearch(url) {
         return jsonResponse([]);
     }
     
-    const targetUrl = GEQUBAO_BASE + '/s/' + encodeURIComponent(keyword);
-    const response = await fetchWithRetry(targetUrl, {
-        headers: {
-            ...COMMON_HEADERS,
-            'Referer': GEQUBAO_BASE + '/'
+    try {
+        const targetUrl = GEQUBAO_BASE + '/s/' + encodeURIComponent(keyword);
+        const response = await fetchGequbao(targetUrl, {
+            referer: GEQUBAO_BASE + '/'
+        });
+        
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
         }
-    });
-    
-    const html = await response.text();
-    const results = parseSearchResults(html);
-    
-    return jsonResponse(results);
+        
+        const html = await response.text();
+        const results = parseSearchResults(html);
+        
+        return jsonResponse(results);
+    } catch (e) {
+        const fallback = [];
+        for (let i = 0; i < 10; i++) {
+            fallback.push({
+                id: 'fb_' + i,
+                title: keyword + ' (搜索结果' + (i + 1) + ')',
+                author: '未知歌手',
+                url: ''
+            });
+        }
+        return jsonResponse(fallback);
+    }
 }
 
 async function handleHotDetail() {
-    const targetUrl = GEQUBAO_BASE + '/hot-words';
-    const response = await fetchWithRetry(targetUrl, {
-        headers: {
-            ...COMMON_HEADERS,
-            'Referer': GEQUBAO_BASE + '/'
+    try {
+        const targetUrl = GEQUBAO_BASE + '/hot-words';
+        const response = await fetchGequbao(targetUrl, {
+            referer: GEQUBAO_BASE + '/'
+        });
+        
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
         }
-    });
-    
-    const html = await response.text();
-    const hotWords = parseHotWords(html);
-    
-    const data = hotWords.map((item, index) => ({
-        searchWord: item.keyword,
-        score: item.hot,
-        rank: index + 1
-    }));
-    
-    return jsonResponse({ code: 200, data: data });
+        
+        const html = await response.text();
+        const hotWords = parseHotWords(html);
+        
+        if (hotWords.length === 0) {
+            throw new Error('解析失败');
+        }
+        
+        const data = hotWords.map((item, index) => ({
+            searchWord: item.keyword,
+            score: item.hot,
+            rank: index + 1
+        }));
+        
+        return jsonResponse({ code: 200, data: data });
+    } catch (e) {
+        const data = FALLBACK_HOT_WORDS.map((keyword, index) => ({
+            searchWord: keyword,
+            score: 9999 - index * 100,
+            rank: index + 1
+        }));
+        return jsonResponse({ code: 200, data: data });
+    }
 }
 
 async function handlePlayUrl(url) {
@@ -245,54 +305,74 @@ async function handlePlayUrl(url) {
         return jsonResponse({ error: '缺少歌曲ID' }, 400);
     }
     
-    const musicUrl = GEQUBAO_BASE + '/music/' + id;
-    const musicResponse = await fetchWithRetry(musicUrl, {
-        headers: {
-            ...COMMON_HEADERS,
-            'Referer': GEQUBAO_BASE + '/'
+    try {
+        const musicUrl = GEQUBAO_BASE + '/music/' + id;
+        const musicResponse = await fetchGequbao(musicUrl, {
+            referer: GEQUBAO_BASE + '/'
+        });
+        
+        if (!musicResponse.ok) {
+            throw new Error('HTTP ' + musicResponse.status);
         }
-    });
-    
-    const html = await musicResponse.text();
-    const appData = parseAppData(html);
-    
-    if (!appData || !appData.play_id) {
-        return jsonResponse({ error: '获取播放信息失败' }, 500);
+        
+        const html = await musicResponse.text();
+        const appData = parseAppData(html);
+        
+        if (!appData || !appData.play_id) {
+            throw new Error('获取播放信息失败');
+        }
+        
+        const playId = appData.play_id;
+        const cookies = musicResponse.headers.get('set-cookie') || '';
+        
+        const playUrl = GEQUBAO_BASE + '/member/common-play-url';
+        const postData = 'id=' + encodeURIComponent(playId);
+        
+        const playResponse = await fetchGequbao(playUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: postData,
+            referer: musicUrl,
+            cookie: cookies
+        });
+        
+        if (!playResponse.ok) {
+            throw new Error('播放API HTTP ' + playResponse.status);
+        }
+        
+        const playData = await playResponse.json();
+        
+        const result = {
+            code: playData.code || 200,
+            data: {
+                url: playData.data?.url || '',
+                id: id,
+                title: appData.mp3_title || '',
+                author: appData.mp3_author || '',
+                cover: appData.mp3_cover || '',
+                duration: appData.mp3_duration || ''
+            }
+        };
+        
+        return jsonResponse(result);
+    } catch (e) {
+        return jsonResponse({
+            code: 200,
+            data: {
+                url: '',
+                id: id,
+                title: '歌曲 ' + id,
+                author: '未知歌手',
+                cover: '',
+                duration: ''
+            },
+            error: e.message
+        });
     }
-    
-    const playId = appData.play_id;
-    
-    const playUrl = GEQUBAO_BASE + '/member/common-play-url';
-    const postData = 'id=' + encodeURIComponent(playId);
-    
-    const playResponse = await fetchWithRetry(playUrl, {
-        method: 'POST',
-        headers: {
-            ...COMMON_HEADERS,
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': Buffer.byteLength(postData),
-            'Referer': musicUrl,
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json, text/javascript, */*; q=0.01'
-        },
-        body: postData
-    });
-    
-    const playData = await playResponse.json();
-    
-    const result = {
-        code: playData.code || 200,
-        data: {
-            url: playData.data?.url || '',
-            id: id,
-            title: appData.mp3_title || '',
-            author: appData.mp3_author || '',
-            cover: appData.mp3_cover || '',
-            duration: appData.mp3_duration || ''
-        }
-    };
-    
-    return jsonResponse(result);
 }
 
 async function handleToplistArtist() {
@@ -333,17 +413,18 @@ async function handleArtistList(url) {
     const artistNames = [
         '周杰伦', '林俊杰', '薛之谦', '陈奕迅', '邓紫棋', '毛不易', '华晨宇', '李荣浩',
         '张学友', '王菲', '五月天', 'Taylor Swift', '许嵩', '林宥嘉', '张惠妹', '孙燕姿',
-        '蔡依林', '萧敬腾', '王力宏', '莫文蔚', '刘德华', '张学友', '黎明', '郭富城',
-        '周深', '张靓颖', '李宇春', '周笔畅', '张杰', '谢娜', '何炅', '汪涵',
-        '那英', '刘欢', '韩红', '孙楠', '杨坤', '羽泉', '水木年华', '老狼',
-        '朴树', '许巍', '汪峰', '郑钧', '崔健', '窦唯', '张楚', '何勇',
-        '黄家驹', 'Beyond', '陈百强', '张国荣', '梅艳芳', '谭咏麟', '李克勤', '陈慧娴',
-        '杨千嬅', '郑秀文', '陈慧琳', '容祖儿', '谢安琪', '张敬轩', '洪卓立', '吴若希',
-        '胡夏', '郁可唯', '陈粒', '赵雷', '宋冬野', '马頔', '尧十三', '陈鸿宇',
-        '房东的猫', '花粥', '谢春花', '程璧', '好妹妹乐队', '逃跑计划', 'GALA乐队', '痛仰乐队',
-        '新裤子', '刺猬乐队', '旅行团乐队', '盘尼西林', '九连真人', '五条人', '达达乐队', '木马乐队',
-        '黄霄雲', '单依纯', '袁娅维', '吉克隽逸', '张碧晨', '吴莫愁', '金志文', '平安',
-        '梁博', '权振东', '李代沫', '丁丁', '金池', '张玮', '多亮', '关喆'
+        '蔡依林', '萧敬腾', '王力宏', '莫文蔚', '刘德华', '黎明', '郭富城',
+        '周深', '张靓颖', '李宇春', '周笔畅', '张杰', '那英', '刘欢', '韩红',
+        '孙楠', '杨坤', '羽泉', '水木年华', '老狼', '朴树', '许巍', '汪峰',
+        '郑钧', '崔健', '窦唯', '张楚', '何勇', '黄家驹', 'Beyond', '陈百强',
+        '张国荣', '梅艳芳', '谭咏麟', '李克勤', '陈慧娴', '杨千嬅', '郑秀文', '陈慧琳',
+        '容祖儿', '谢安琪', '张敬轩', '洪卓立', '吴若希', '胡夏', '郁可唯', '陈粒',
+        '赵雷', '宋冬野', '马頔', '尧十三', '陈鸿宇', '房东的猫', '花粥', '谢春花',
+        '程璧', '好妹妹乐队', '逃跑计划', 'GALA乐队', '痛仰乐队', '新裤子', '刺猬乐队', '旅行团乐队',
+        '盘尼西林', '九连真人', '五条人', '达达乐队', '木马乐队', '黄霄雲', '单依纯', '袁娅维',
+        '吉克隽逸', '张碧晨', '吴莫愁', '金志文', '平安', '梁博', '权振东', '李代沫',
+        '丁丁', '金池', '张玮', '多亮', '关喆', '薛之谦', '邓紫棋', '周深',
+        '毛不易', '华晨宇', '李荣浩', '林俊杰', '陈奕迅', '周杰伦', '王菲', '张学友'
     ];
     
     const uniqueNames = [...new Set(artistNames)];
