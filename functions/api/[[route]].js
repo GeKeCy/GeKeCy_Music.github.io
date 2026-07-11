@@ -222,11 +222,13 @@ export async function onRequest(context) {
                 return await handleArtistList(url);
             case 'playlist-detail':
                 return await handlePlaylistDetail(url);
+            case 'test':
+                return await handleTest();
             default:
                 return jsonResponse({ error: '未知的API路径: ' + path }, 404);
         }
     } catch (e) {
-        return jsonResponse({ error: '代理请求失败: ' + e.message }, 500);
+        return jsonResponse({ error: '代理请求失败: ' + e.message, stack: e.stack }, 500);
     }
 }
 
@@ -445,6 +447,53 @@ async function handleArtistList(url) {
         artists: sliced,
         total: allArtists.length
     });
+}
+
+async function handleTest() {
+    const results = {};
+    
+    try {
+        const resp1 = await fetch(GEQUBAO_BASE + '/', {
+            headers: getBrowserHeaders(GEQUBAO_BASE + '/'),
+            cf: { cacheTtl: 0 }
+        });
+        results.homepage = {
+            status: resp1.status,
+            statusText: resp1.statusText,
+            contentType: resp1.headers.get('content-type'),
+            bodyLength: (await resp1.text()).length
+        };
+    } catch (e) {
+        results.homepage = { error: e.message, name: e.name };
+    }
+    
+    try {
+        const resp2 = await fetch(GEQUBAO_BASE + '/hot-words', {
+            headers: getBrowserHeaders(GEQUBAO_BASE + '/'),
+            cf: { cacheTtl: 0 }
+        });
+        results.hotwords = {
+            status: resp2.status,
+            contentType: resp2.headers.get('content-type'),
+            bodyLength: (await resp2.text()).length
+        };
+    } catch (e) {
+        results.hotwords = { error: e.message, name: e.name };
+    }
+    
+    try {
+        const resp3 = await fetch('https://api.github.com/', {
+            headers: { 'User-Agent': 'Cloudflare-Workers' }
+        });
+        results.github = {
+            status: resp3.status,
+            bodyLength: (await resp3.text()).length
+        };
+    } catch (e) {
+        results.github = { error: e.message, name: e.name };
+    }
+    
+    return jsonResponse({ test: results });
 }
 
 async function handlePlaylistDetail(url) {
